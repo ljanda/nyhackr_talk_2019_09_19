@@ -1,0 +1,110 @@
+---
+title: "The ggplot glow-up"
+subtitle: ""
+author: "Ludmila Janda"
+institute: "Amplify"
+date: "2019/09/19"
+output:
+  xaringan::moon_reader:
+    css: [default, hygge, metropolis-fonts]
+    chakra: libs/remark-latest.min.js
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+```
+
+# Amplify
+
+![](images/amplify_science.jpg)
+---
+
+# Motivation
+
+![](images/tufte_tweet.png)
+
+---
+
+# Motivation
+
+![](images/blocked_by_tufte1.png)
+
+---
+
+# Motivation
+
+![](images/blocked_by_tufte2.png)
+
+---
+
+# Motivation
+
+- One of the great powers of R is visualization
+
+--
+
+- Yet graphs like this persist 
+
+```{r, echo=FALSE, fig.height=6, fig.width=5}
+data(diamonds)
+
+ggplot(diamonds, aes(cut, price)) + 
+  geom_boxplot() +
+  labs(title = "Diamond Prices By Cut")
+```
+
+---
+
+```{r, echo=TRUE, fig.height=6, fig.width=5}
+ggplot(diamonds, aes(cut, price)) + 
+  geom_boxplot() +
+  labs(title = "Diamond Prices By Cut") +
+  theme_minimal()
+```
+
+---
+
+```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+library(scales)
+
+ggplot(diamonds, aes(cut, price)) + 
+  geom_boxplot() +
+  scale_y_continuous(label = comma) +
+  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
+  theme_minimal() 
+```
+
+---
+
+```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+ggplot(diamonds, aes(cut, price)) + 
+  geom_dotplot(binaxis = "y", stackdir = "center", 
+               stackratio = 0.5, dotsize = 0.5, 
+               binwidth = 30, alpha = 0.5) +
+  scale_y_continuous(label = comma) +
+  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
+  theme_minimal() 
+```
+
+---
+
+```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+library(ggridges)
+
+ggplot(diamonds, aes(price, cut)) + 
+ggridges::geom_density_ridges(
+                      scale = 3,                  # ridge height/overlap 
+                      rel_min_height = 0.001) +   # where to draw line 
+  scale_x_continuous(limits = c(0, 20000),        # set cutoff 
+                     expand = c(0.01, 0),         # allow expansion
+                     label = comma) +       
+  scale_y_discrete(expand = c(0.2, 0)) +          # padding around graph 
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal()
+```
