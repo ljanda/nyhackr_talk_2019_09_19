@@ -18,6 +18,8 @@ output:
 ```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 options(htmltools.dir.version = FALSE)
 library(tidyverse)
+library(scales)
+library(extrafont)
 ```
 
 # Amplify
@@ -51,7 +53,7 @@ library(tidyverse)
 
 - Yet graphs like this persist 
 
-```{r, echo=FALSE, fig.height=6, fig.width=5}
+```{r bad_graph, echo=FALSE, fig.height=6, fig.width=5}
 data(diamonds)
 
 ggplot(diamonds, aes(cut, price)) + 
@@ -61,7 +63,7 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r, echo=TRUE, fig.height=6, fig.width=5}
+```{r theme, echo=TRUE, fig.height=6, fig.width=5}
 ggplot(diamonds, aes(cut, price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
@@ -70,19 +72,20 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+```{r scales, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
 library(scales)
 
 ggplot(diamonds, aes(cut, price)) + 
   geom_boxplot() +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_minimal() 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
 ```
 
 ---
 
-```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+```{r dotplot, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
 ggplot(diamonds, aes(cut, price)) + 
   geom_dotplot(binaxis = "y", stackdir = "center", 
                stackratio = 0.5, dotsize = 0.5, 
@@ -94,17 +97,141 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
 library(ggridges)
 
 ggplot(diamonds, aes(price, cut)) + 
-ggridges::geom_density_ridges(
-                      scale = 3,                  # ridge height/overlap 
-                      rel_min_height = 0.001) +   # where to draw line 
-  scale_x_continuous(limits = c(0, 20000),        # set cutoff 
+  ggridges::geom_density_ridges(
+                      scale = 1.5,                # ridge height/overlap 
+                      rel_min_height = 0.001,     # where to draw line
+                      alpha = 0.5) +    
+  scale_x_continuous(limits = c(0, 22000),        # set cutoff 
                      expand = c(0.01, 0),         # allow expansion
                      label = comma) +       
-  scale_y_discrete(expand = c(0.2, 0)) +          # padding around graph 
+  scale_y_discrete(expand = c(0.4, 0)) +          # padding around graph 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
   theme_minimal()
 ```
+
+
+---
+
+Make a fun theme! 
+
+```{r nyr_theme}
+theme_nyr <- function(x) {
+  theme(text = element_text(family = "Webdings"),
+        axis.text = element_text(size = 12, color = "red"),
+        axis.title = element_text(size = 14, color = "red"),
+        plot.title = element_text(size = 14, face = "bold", color = "red"),
+        plot.caption = element_text(color = "red"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        panel.background = element_rect(fill = "white", colour = NA),
+        panel.grid.minor = element_blank(),
+        axis.title.y = element_text(angle = 90))
+}
+
+```
+
+```{r, echo=FALSE}
+ggplot(diamonds, aes(price, cut)) + 
+ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5) +    
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +
+  scale_y_discrete(expand = c(0.4, 0)) +     
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_nyr()
+```
+
+---
+#TidyTuesday
+
+---
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+plot <- 
+  theme_void() + 
+  theme(text = element_text(family = "Gaegu"),
+        axis.text = element_text(size = 15, color = "white"),
+        axis.title = element_text(size = 20, color = "white"),
+        plot.title = element_text(size = 25,face = "bold", 
+                                  color = "white", hjust = 0.5),
+        plot.caption = element_text(color = "white"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        axis.title.y = element_text(angle = 90))
+
+ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.width=7}
+## TAKEN FROM: 
+
+library(sysfonts)
+library(showtext) # for google fonts
+
+
+sysfonts::font_add_google("Gaegu", "gaegu")
+showtext::showtext_auto()
+
+
+# Read and prepare data ---------------------------------------------------
+df <- read_delim("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-27/simpsons-guests.csv", delim = "|", quote = "")
+df2 <- df %>% mutate(number = strsplit(as.character(number), "; ")) %>% 
+  unnest() %>% # Splits rows that contain multiple episodes into multiple rows
+  group_by(season) %>% summarize(guests_per_episode = n_distinct(guest_star)/n_distinct(number))
+
+
+# Prepare for plot --------------------------------------------------------
+# I want the axes and the line connecting the points to look hand-drawn, so I will use geom_line + jitter to draw them
+spline_int <- as.data.frame(spline(as.numeric(df2$season), df2$guests_per_episode, method = "natural"))
+x.ax <- data.frame(x = seq(from = 0, to = 30, by = 1), y = rep(0, 31))
+y.ax <- data.frame(x = rep(0, 21), y = seq(from = 0, to = 4, by = 0.2))
+
+
+# Plotting ----------------------------------------------------------------
+plot <- df2 %>% 
+  ggplot(aes(x = as.numeric(season), y = guests_per_episode)) + 
+  geom_point(size = 4, color = "white") + 
+  theme_void() + 
+  theme(text = element_text(family = "Gaegu"),
+        axis.text = element_text(size = 15, color = "white"),
+        axis.title = element_text(size = 20, color = "white"),
+        plot.title = element_text(size = 25,face = "bold", 
+                                  color = "white", hjust = 0.5),
+        plot.caption = element_text(color = "white"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        axis.title.y = element_text(angle = 90)) + 
+  ylab("Guests per episode") + xlab("Season") + 
+  labs(title = "The number of guest stars in\nthe Simpsons is increasing", 
+       caption = "@_Gil_Henriques for #TidyTuesday") +
+  ylim(-0.1,4.3) + xlim(-0.1, 30.5) + 
+  geom_line(data = spline_int, aes(x = x, y = y), 
+            color = "white", 
+            position = position_jitter(w = 0.05, h = 0.05), 
+            size = 0.8) +
+  geom_line(data = x.ax, aes(x = x, y = y), 
+            color = "white", 
+            position = position_jitter(w = 0.0, h = 0.05), size = 0.8) +
+  geom_line(data = y.ax, aes(x = x, y = y), color = "white", 
+            position = position_jitter(w = 0.05, h = 0.0), size = 0.8)
+
+ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
+
+```
+---
+Mara's code
+
+---
+
+gghiglight
+ggalluvial
+waffle plots
+
+BBC
+take a sad plot and make it better
+
+
+
+In Summary 
+
+- Use/make a theme (change the background, font & font size)
+- 
+packages used

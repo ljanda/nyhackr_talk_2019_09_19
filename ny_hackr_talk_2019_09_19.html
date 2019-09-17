@@ -53,7 +53,7 @@ class: center, middle, inverse, title-slide
 
 - Yet graphs like this persist 
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/bad_graph-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -65,7 +65,7 @@ ggplot(diamonds, aes(cut, price)) +
   theme_minimal()
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/theme-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -77,10 +77,11 @@ ggplot(diamonds, aes(cut, price)) +
   geom_boxplot() +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_minimal() 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/scales-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -95,7 +96,7 @@ ggplot(diamonds, aes(cut, price)) +
   theme_minimal() 
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/dotplot-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -104,17 +105,87 @@ ggplot(diamonds, aes(cut, price)) +
 library(ggridges)
 
 ggplot(diamonds, aes(price, cut)) + 
-ggridges::geom_density_ridges(
-                      scale = 3,                  # ridge height/overlap 
-                      rel_min_height = 0.001) +   # where to draw line 
-  scale_x_continuous(limits = c(0, 20000),        # limits - set cutoff 
-                     expand = c(0.01, 0)) +       # allow graph to exceed limits
-  scale_y_discrete(expand = c(0.2, 0)) +          # padding around graph 
-  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") + 
+  ggridges::geom_density_ridges(
+                      scale = 1.5,                # ridge height/overlap 
+                      rel_min_height = 0.001,     # where to draw line
+                      alpha = 0.5) +    
+  scale_x_continuous(limits = c(0, 22000),        # set cutoff 
+                     expand = c(0.01, 0),         # allow expansion
+                     label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) +          # padding around graph 
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
   theme_minimal()
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplot-1.png)&lt;!-- --&gt;
+
+
+---
+
+Make a fun theme! 
+
+
+```r
+theme_nyr &lt;- function(x) {
+  theme(text = element_text(family = "Webdings"),
+        axis.text = element_text(size = 12, color = "red"),
+        axis.title = element_text(size = 14, color = "red"),
+        plot.title = element_text(size = 14, face = "bold", color = "red"),
+        plot.caption = element_text(color = "red"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        panel.background = element_rect(fill = "white", colour = NA),
+        panel.grid.minor = element_blank(),
+        axis.title.y = element_text(angle = 90))
+}
+```
+
+
+```
+## Picking joint bandwidth of 458
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+
+---
+gghiglight
+
+---
+tidy tuesday
+
+```r
+plot &lt;- 
+  theme_void() + 
+  theme(text = element_text(family = "Gaegu"),
+        axis.text = element_text(size = 15, color = "white"),
+        axis.title = element_text(size = 20, color = "white"),
+        plot.title = element_text(size = 25,face = "bold", 
+                                  color = "white", hjust = 0.5),
+        plot.caption = element_text(color = "white"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        axis.title.y = element_text(angle = 90))
+
+ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+---
+Mara's code
+
+---
+
+ggalluvial
+waffle plots
+
+BBC
+take a sad plot and make it better
+
+
+
+In Summary 
+
+- Use/make a theme (change the background, font &amp; font size)
+- 
+packages used
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>
