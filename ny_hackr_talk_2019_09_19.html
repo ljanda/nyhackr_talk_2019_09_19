@@ -102,8 +102,6 @@ ggplot(diamonds, aes(cut, price)) +
 
 
 ```r
-library(ggridges)
-
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(
                       scale = 1.5,                # ridge height/overlap 
@@ -114,16 +112,87 @@ ggplot(diamonds, aes(price, cut)) +
                      label = comma) +       
   scale_y_discrete(expand = c(0.4, 0)) +          # padding around graph 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal()
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
 ```
 
 ![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplot-1.png)&lt;!-- --&gt;
 
+---
+
+
+```r
+ggplot(diamonds, aes(price, cut)) + 
+  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
+                                         quantile_lines = TRUE, quantiles = 2) +  
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplotm-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+library(viridis)
+ggplot(diamonds, aes(price, cut, fill = ..x..)) + 
+  ggridges::geom_density_ridges_gradient(scale = 1.5, rel_min_height = 0.001, 
+                                         gradient_lwd = 1) +  ## add gradient  
+  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  viridis::scale_fill_viridis(name = "Price", option = "C") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplotv-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) + 
+  ggridges::stat_density_ridges(scale = 1.5, rel_min_height = 0.001, 
+                                geom = "density_ridges_gradient",
+                                calc_ecdf = TRUE, quantiles = 4, 
+                                quantile_lines = TRUE) +  
+  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  viridis::scale_fill_viridis(discrete = TRUE, name = "Quartiles") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplotvq-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+ggplot(diamonds, aes(price, cut)) + 
+  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
+                                jittered_points = TRUE,  ## add points 
+                                point_shape = "|", point_size = 3, size = 0.25, 
+                                position = position_jitter(height = 0)) + 
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  scale_fill_viridis(name = "Price", option = "C") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplotj-1.png)&lt;!-- --&gt;
 
 ---
 
 Make a fun theme! 
-
 
 ```r
 theme_nyr &lt;- function(x) {
@@ -139,18 +208,12 @@ theme_nyr &lt;- function(x) {
 }
 ```
 
-
-```
-## Picking joint bandwidth of 458
-```
-
 ![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
 
 ---
-gghiglight
+#TidyTuesday
 
 ---
-tidy tuesday
 
 ```r
 plot &lt;- 
@@ -168,12 +231,63 @@ ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 ```
 
 ![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
----
-Mara's code
 
 ---
 
+
+
+
+```r
+ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) + 
+  geom_bar() + 
+  scale_fill_got_d(option = "Targaryen", direction = - 1) +
+  labs(title = "A Goat Named Arya", 
+       subtitle = "Game of Thrones Inspired (Maybe) Pet Names in Seattle", 
+       x = element_blank(), y = element_blank(), caption = "@MaraAlexeev") +
+  theme_minimal() +
+  theme(legend.position = c(0.9, 0.6)) +
+  labs(fill = "Pet Species") +
+  theme(text = element_text(size = 16, family = "Cinzel"))
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+gghiglight
+
+---
 ggalluvial
+
+
+```r
+## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
+library(ggalluvial)
+job_outcomes &lt;- read_csv(here::here("job_outcomes.csv"))
+
+job_outcomes %&gt;% 
+  mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %&gt;% 
+  to_lodes(key = "contact", axes = 2:5) %&gt;% 
+  ggplot(aes(x = contact, stratum = stratum, 
+             alluvium = alluvium, label = stratum)) + 
+  geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
+  geom_stratum(na.rm = TRUE) +
+  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  theme_minimal() + 
+  theme(text = element_text(size = 12)) +
+  labs(x = "", fill = "Final Outcome", 
+       caption = "David Neuzerling @mdneuzerling") + 
+  scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
+                               "withdrew" = "#0072B2", "rejected" = "#D55E00",
+                               "offer" = "#009E73")) 
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ggalluvial1-1.png)&lt;!-- --&gt;
+
+---
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ggalluvial2-1.png)&lt;!-- --&gt;
+---
 waffle plots
 
 BBC
@@ -183,8 +297,10 @@ take a sad plot and make it better
 
 In Summary 
 
-- Use/make a theme (change the background, font &amp; font size)
-- 
+- Change your background
+- Pick a nice font and font size 
+
+
 packages used
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

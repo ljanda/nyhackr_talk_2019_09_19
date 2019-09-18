@@ -20,6 +20,7 @@ options(htmltools.dir.version = FALSE)
 library(tidyverse)
 library(scales)
 library(extrafont)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 # Amplify
@@ -53,7 +54,7 @@ library(extrafont)
 
 - Yet graphs like this persist 
 
-```{r bad_graph, echo=FALSE, fig.height=6, fig.width=5}
+```{r bad_graph, echo=FALSE, fig.height=5, fig.width=7}
 data(diamonds)
 
 ggplot(diamonds, aes(cut, price)) + 
@@ -63,7 +64,7 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r theme, echo=TRUE, fig.height=6, fig.width=5}
+```{r theme, echo=TRUE, fig.height=5, fig.width=7}
 ggplot(diamonds, aes(cut, price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
@@ -72,7 +73,7 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r scales, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+```{r scales, echo=TRUE, message=FALSE, fig.height=5, fig.width=7}
 library(scales)
 
 ggplot(diamonds, aes(cut, price)) + 
@@ -85,7 +86,7 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r dotplot, echo=TRUE, message=FALSE, fig.height=6, fig.width=5}
+```{r dotplot, echo=TRUE, message=FALSE, fig.height=5, fig.width=7}
 ggplot(diamonds, aes(cut, price)) + 
   geom_dotplot(binaxis = "y", stackdir = "center", 
                stackratio = 0.5, dotsize = 0.5, 
@@ -98,8 +99,6 @@ ggplot(diamonds, aes(cut, price)) +
 ---
 
 ```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
-library(ggridges)
-
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(
                       scale = 1.5,                # ridge height/overlap 
@@ -110,14 +109,73 @@ ggplot(diamonds, aes(price, cut)) +
                      label = comma) +       
   scale_y_discrete(expand = c(0.4, 0)) +          # padding around graph 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal()
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
 ```
 
+---
+
+```{r ridgeplotm, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+ggplot(diamonds, aes(price, cut)) + 
+  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
+                                         quantile_lines = TRUE, quantiles = 2) +  
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+---
+
+```{r ridgeplotv, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+library(viridis)
+ggplot(diamonds, aes(price, cut, fill = ..x..)) + 
+  ggridges::geom_density_ridges_gradient(scale = 1.5, rel_min_height = 0.001, 
+                                         gradient_lwd = 1) +  ## add gradient  
+  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  viridis::scale_fill_viridis(name = "Price", option = "C") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+---
+
+```{r ridgeplotvq, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) + 
+  ggridges::stat_density_ridges(scale = 1.5, rel_min_height = 0.001, 
+                                geom = "density_ridges_gradient",
+                                calc_ecdf = TRUE, quantiles = 4, 
+                                quantile_lines = TRUE) +  
+  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  viridis::scale_fill_viridis(discrete = TRUE, name = "Quartiles") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
+
+---
+
+```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618, cache=TRUE}
+ggplot(diamonds, aes(price, cut)) + 
+  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
+                                jittered_points = TRUE,  ## add points 
+                                point_shape = "|", point_size = 3, size = 0.25, 
+                                position = position_jitter(height = 0)) + 
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.4, 0)) + 
+  scale_fill_viridis(name = "Price", option = "C") +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 12))
+```
 
 ---
 
 Make a fun theme! 
-
 ```{r nyr_theme}
 theme_nyr <- function(x) {
   theme(text = element_text(family = "Webdings"),
@@ -133,7 +191,7 @@ theme_nyr <- function(x) {
 
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.width=6, fig.height=5}
 ggplot(diamonds, aes(price, cut)) + 
 ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5) +    
   scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +
@@ -162,7 +220,7 @@ ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.width=7}
-## TAKEN FROM: 
+## TAKEN FROM: https://github.com/GilHenriques/TidyTuesdays/tree/master/2019-08-27%20Simpsons%20guest%20stars
 
 library(sysfonts)
 library(showtext) # for google fonts
@@ -178,13 +236,11 @@ df2 <- df %>% mutate(number = strsplit(as.character(number), "; ")) %>%
   unnest() %>% # Splits rows that contain multiple episodes into multiple rows
   group_by(season) %>% summarize(guests_per_episode = n_distinct(guest_star)/n_distinct(number))
 
-
 # Prepare for plot --------------------------------------------------------
 # I want the axes and the line connecting the points to look hand-drawn, so I will use geom_line + jitter to draw them
 spline_int <- as.data.frame(spline(as.numeric(df2$season), df2$guests_per_episode, method = "natural"))
 x.ax <- data.frame(x = seq(from = 0, to = 30, by = 1), y = rep(0, 31))
 y.ax <- data.frame(x = rep(0, 21), y = seq(from = 0, to = 4, by = 0.2))
-
 
 # Plotting ----------------------------------------------------------------
 plot <- df2 %>% 
@@ -216,13 +272,85 @@ plot <- df2 %>%
 ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 
 ```
+
 ---
-Mara's code
+
+```{r, echo=FALSE}
+## FROM: http://rpubs.com/maraalexeev/529038
+library(gameofthrones)
+font_add_google(name = "Cinzel", family = "Cinzel")
+
+pets <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
+GOT_names <- c("Tyrion", "Jon", "Cersei", "Daenerys", "Sansa", "Arya", "Jaime", "Jorah", "Theon", "Samwell")
+GOT_pets <- pets %>% 
+  filter(animals_name %in% GOT_names)
+```
+
+```{r, fig.width=7, fig.height=5}
+ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) + 
+  geom_bar() + 
+  scale_fill_got_d(option = "Targaryen", direction = - 1) +
+  labs(title = "A Goat Named Arya", 
+       subtitle = "Game of Thrones Inspired (Maybe) Pet Names in Seattle", 
+       x = element_blank(), y = element_blank(), caption = "@MaraAlexeev") +
+  theme_minimal() +
+  theme(legend.position = c(0.9, 0.6)) +
+  labs(fill = "Pet Species") +
+  theme(text = element_text(size = 16, family = "Cinzel"))
+```
 
 ---
 
 gghiglight
+
+---
 ggalluvial
+
+```{r ggalluvial1, fig.width=4, fig.height=2.5}
+## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
+library(ggalluvial)
+job_outcomes <- read_csv(here::here("job_outcomes.csv"))
+
+job_outcomes %>% 
+  mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %>% 
+  to_lodes(key = "contact", axes = 2:5) %>% 
+  ggplot(aes(x = contact, stratum = stratum, 
+             alluvium = alluvium, label = stratum)) + 
+  geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
+  geom_stratum(na.rm = TRUE) +
+  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  theme_minimal() + 
+  theme(text = element_text(size = 12)) +
+  labs(x = "", fill = "Final Outcome", 
+       caption = "David Neuzerling @mdneuzerling") + 
+  scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
+                               "withdrew" = "#0072B2", "rejected" = "#D55E00",
+                               "offer" = "#009E73")) 
+```
+
+---
+
+```{r ggalluvial2, echo=FALSE, fig.width=10, fig.asp=0.618}
+library(ggalluvial)
+job_outcomes <- read_csv(here::here("job_outcomes.csv"))
+
+job_outcomes %>% 
+  mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %>% 
+  to_lodes(key = "contact", axes = 2:5) %>% 
+  ggplot(aes(x = contact, stratum = stratum, 
+             alluvium = alluvium, label = stratum)) + 
+  geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
+  geom_stratum(na.rm = TRUE) +
+  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  theme_minimal() + 
+  theme(text = element_text(size = 12)) +
+  labs(x = "", fill = "Final Outcome", 
+       caption = "David Neuzerling @mdneuzerling") + 
+  scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
+                               "withdrew" = "#0072B2", "rejected" = "#D55E00",
+                               "offer" = "#009E73")) 
+```
+---
 waffle plots
 
 BBC
@@ -232,6 +360,8 @@ take a sad plot and make it better
 
 In Summary 
 
-- Use/make a theme (change the background, font & font size)
-- 
+- Change your background
+- Pick a nice font and font size 
+
+
 packages used

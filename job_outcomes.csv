@@ -1,0 +1,41 @@
+job_id,contact,1st stage,2nd stage,outcome
+1,job site,ghosted,NA,NA
+2,job site,ghosted,NA,NA
+3,recruiter,coffee,no role,NA
+4,LinkedIn,ghosted,NA,NA
+5,network,coffee,ghosted,NA
+6,network,phone call,interview,withdrew
+7,LinkedIn,phone call,withdrew,NA
+8,LinkedIn,ghosted,NA,NA
+9,internal,coffee,interview,rejected
+10,LinkedIn,phone call,interview,rejected
+11,job site,ghosted,NA,NA
+12,job site,ghosted,NA,NA
+14,internal,coffee,interview,rejected
+15,job site,ghosted,NA,NA
+16,recruiter,phone call,interview,ghosted
+17,recruiter,coffee,ghosted,NA
+18,recruiter,phone call,ghosted,NA
+19,job site,phone call,no role,NA
+20,recruiter,phone call,ghosted,NA
+21,job site,phone call,interview,offer
+22,job site,phone call,interview,rejected
+23,network,coffee,no role,NA
+24,job site,ghosted,NA,NA
+25,job site,ghosted,NA,NA
+26,job site,phone call,ghosted,NA
+27,job site,ghosted,NA,NA
+28,network,coffee,no role,NA
+29,recruiter,coffee,ghosted,NA
+30,recruiter,phone call,withdrew,NA
+31,job site,phone call,interview,ghosted
+32,LinkedIn,coffee,withdrew,NA
+33,job site,ghosted,NA,NA
+34,LinkedIn,phone call,withdrew,NA
+35,job site,ghosted,NA,NA
+36,job site,phone call,ghosted,NA
+37,recruiter,phone call,withdrew,NA
+38,recruiter,coffee,no role,NA
+39,internal,coffee,interview,withdrew
+40,job site,rejected,NA,NA
+41,job site,ghosted,NA,NA
