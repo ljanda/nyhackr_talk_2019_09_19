@@ -20,6 +20,8 @@ options(htmltools.dir.version = FALSE)
 library(tidyverse)
 library(scales)
 library(extrafont)
+library(ggforce)
+library(cowplot)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -72,6 +74,29 @@ ggplot(diamonds, aes(cut, price)) +
 ```
 
 ---
+# Make your own theme! 
+```{r nyr_theme}
+theme_diamonds <- function(x) {
+  theme(text = element_text(family = "Luminari"),
+        axis.text = element_text(size = 12, color = "skyblue"),
+        axis.title = element_text(size = 14, color = "skyblue"),
+        plot.title = element_text(size = 16, face = "bold", color = "skyblue"),
+        plot.caption = element_text(color = "skyblue"),
+        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        panel.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank())
+}
+
+```
+
+```{r, echo=FALSE, fig.width=6, fig.height=5}
+ggplot(diamonds, aes(cut, price)) + 
+  geom_boxplot() +
+  labs(title = "Diamond Prices By Cut") +
+  theme_diamonds()
+```
+
+---
 
 ```{r scales, echo=TRUE, message=FALSE, fig.height=5, fig.width=7}
 library(scales)
@@ -80,7 +105,7 @@ ggplot(diamonds, aes(cut, price)) +
   geom_boxplot() +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_minimal() + 
+  theme_diamonds() + 
   theme(axis.text = element_text(size = 12))
 ```
 
@@ -93,7 +118,7 @@ ggplot(diamonds, aes(cut, price)) +
                binwidth = 30, alpha = 0.5) +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_minimal() 
+  theme_diamonds() 
 ```
 
 ---
@@ -101,29 +126,29 @@ ggplot(diamonds, aes(cut, price)) +
 ```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(
-                      scale = 1.5,                # ridge height/overlap 
+                      scale = 1.4,                # ridge height/overlap 
                       rel_min_height = 0.001,     # where to draw line
                       alpha = 0.5) +    
   scale_x_continuous(limits = c(0, 22000),        # set cutoff 
                      expand = c(0.01, 0),         # allow expansion
                      label = comma) +       
-  scale_y_discrete(expand = c(0.4, 0)) +          # padding around graph 
+  scale_y_discrete(expand = c(0.1, 0)) +          # padding around graph 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds() 
 ```
 
 ---
 
 ```{r ridgeplotm, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
-                                         quantile_lines = TRUE, quantiles = 2) +  
-  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
-  scale_y_discrete(expand = c(0.4, 0)) + 
+  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                                alpha = 0.5,
+                                quantile_lines = TRUE, quantiles = 2) +  
+  scale_x_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.1, 0)) + 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds()
 ```
 
 ---
@@ -131,77 +156,60 @@ ggplot(diamonds, aes(price, cut)) +
 ```{r ridgeplotv, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
 library(viridis)
 ggplot(diamonds, aes(price, cut, fill = ..x..)) + 
-  ggridges::geom_density_ridges_gradient(scale = 1.5, rel_min_height = 0.001, 
+  ggridges::geom_density_ridges_gradient(scale = 1.4, 
+                                         rel_min_height = 0.001, 
                                          gradient_lwd = 1) +  ## add gradient  
   scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
-  scale_y_discrete(expand = c(0.4, 0)) + 
-  viridis::scale_fill_viridis(name = "Price", option = "C") +
+  scale_y_discrete(expand = c(0.1, 0)) + 
+  viridis::scale_fill_viridis(name = "Price", option = "D") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds() 
 ```
 
 ---
 
 ```{r ridgeplotvq, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) + 
-  ggridges::stat_density_ridges(scale = 1.5, rel_min_height = 0.001, 
+  ggridges::stat_density_ridges(scale = 1.4, rel_min_height = 0.001, 
                                 geom = "density_ridges_gradient",
                                 calc_ecdf = TRUE, quantiles = 4, 
                                 quantile_lines = TRUE) +  
-  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
-  scale_y_discrete(expand = c(0.4, 0)) + 
+  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.1, 0)) + 
   viridis::scale_fill_viridis(discrete = TRUE, name = "Quartiles") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds() 
 ```
 
 ---
 
 ```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618, cache=TRUE}
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5,
+  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                                alpha = 0.5,
                                 jittered_points = TRUE,  ## add points 
-                                point_shape = "|", point_size = 3, size = 0.25, 
+                                point_shape = "|", point_size = 3, 
+                                size = 0.25, 
                                 position = position_jitter(height = 0)) + 
-  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
-  scale_y_discrete(expand = c(0.4, 0)) + 
-  scale_fill_viridis(name = "Price", option = "C") +
+  scale_x_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) +       
+  scale_y_discrete(expand = c(0.1, 0)) + 
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_minimal() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds() 
 ```
 
 ---
+Raincloud Plot
 
-Make a fun theme! 
-```{r nyr_theme}
-theme_nyr <- function(x) {
-  theme(text = element_text(family = "Webdings"),
-        axis.text = element_text(size = 12, color = "red"),
-        axis.title = element_text(size = 14, color = "red"),
-        plot.title = element_text(size = 14, face = "bold", color = "red"),
-        plot.caption = element_text(color = "red"),
-        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
-        panel.background = element_rect(fill = "white", colour = NA),
-        panel.grid.minor = element_blank(),
-        axis.title.y = element_text(angle = 90))
-}
-
-```
-
-```{r, echo=FALSE, fig.width=6, fig.height=5}
-ggplot(diamonds, aes(price, cut)) + 
-ggridges::geom_density_ridges(scale = 1.5, rel_min_height = 0.001, alpha = 0.5) +    
-  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +
-  scale_y_discrete(expand = c(0.4, 0)) +     
-  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
-  theme_nyr()
-```
 
 ---
 #TidyTuesday
+
+- [Github](https://github.com/rfordatascience/tidytuesday)
+
+- [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
+
+![](images/ttrocks.png)
 
 ---
 ```{r, warning=FALSE, message=FALSE, eval=FALSE}
@@ -304,7 +312,71 @@ ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) +
 gghiglight
 
 ---
-ggalluvial
+
+## Alluvial Plot 
+```{r myalluvial, echo=FALSE, fig.width=12, fig.asp=0.618}
+sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>% 
+  select(student, unit_title, assessment, score_level) %>% 
+  mutate(score_level = factor(score_level), 
+         assessment = factor(assessment, levels = c("pre", "post"))) %>% 
+  spread(assessment, score_level) %>% 
+  ggalluvial::to_lodes(key = "assessment", axes = 3:4) 
+
+sim_data_pre_post %>% 
+  ggplot(aes(x = assessment, 
+             stratum = fct_rev(stratum), 
+             alluvium = alluvium,
+             fill = fct_rev(stratum), 
+             label = fct_rev(stratum))) +
+  ggalluvial::geom_flow(alpha = 0.5) +
+  ggalluvial::geom_stratum() +
+  scale_fill_manual("Score Level",
+                    values = c("1" = "#4d5050", "2" = "#c2c5c6", 
+                               "3" = "#f2ac80", "4" = "#F37321")) +
+  labs(x = "") +
+  facet_wrap(~unit_title, scales = "free_y") + 
+  theme_minimal() + 
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "grey"), 
+        strip.text.x = element_text(size = 7))
+```
+
+---
+
+## Alluvial Plot Code
+```{r myalluvial_code, eval=FALSE}
+sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>% 
+  select(student, unit_title, assessment, score_level) %>% 
+  mutate(score_level = factor(score_level), 
+         assessment = factor(assessment, levels = c("pre", "post"))) %>% 
+  spread(assessment, score_level) %>%  # get wide dataset (pivot_wider)
+  ggalluvial::to_lodes(key = "assessment", axes = 3:4) # set up dataset
+
+sim_data_pre_post %>% 
+  ggplot(aes(x = assessment,              # categorical x var (pre or post)
+             stratum = fct_rev(stratum),  # categorical var (score_level)
+             alluvium = alluvium,         # individual/unit (student)
+             fill = fct_rev(stratum),     # color of fill
+             label = fct_rev(stratum))) +
+  ggalluvial::geom_flow(alpha = 0.5) +
+  ggalluvial::geom_stratum() +
+  scale_fill_manual("Score Level",
+                    values = c("1" = "#4d5050", "2" = "#c2c5c6", 
+                               "3" = "#f2ac80", "4" = "#F37321")) +
+  labs(x = "") +
+  facet_wrap(~unit_title, scales = "free_y") +   # let y scale vary by facet
+  theme_minimal() + 
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "grey"), 
+        strip.text.x = element_text(size = 7))
+
+```
+
+---
 
 ```{r ggalluvial1, fig.width=4, fig.height=2.5}
 ## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
@@ -330,9 +402,7 @@ job_outcomes %>%
 
 ---
 
-```{r ggalluvial2, echo=FALSE, fig.width=10, fig.asp=0.618}
-library(ggalluvial)
-job_outcomes <- read_csv(here::here("job_outcomes.csv"))
+```{r ggalluvial2, echo=FALSE, fig.width=12, fig.asp=0.618}
 
 job_outcomes %>% 
   mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %>% 
@@ -341,27 +411,220 @@ job_outcomes %>%
              alluvium = alluvium, label = stratum)) + 
   geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
   geom_stratum(na.rm = TRUE) +
-  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  geom_text(stat = "stratum", na.rm = TRUE, size = 4) + 
   theme_minimal() + 
-  theme(text = element_text(size = 12)) +
+  theme(text = element_text(size = 20)) +
   labs(x = "", fill = "Final Outcome", 
        caption = "David Neuzerling @mdneuzerling") + 
   scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
                                "withdrew" = "#0072B2", "rejected" = "#D55E00",
                                "offer" = "#009E73")) 
 ```
+
 ---
-waffle plots
 
-BBC
-take a sad plot and make it better
+```{r annotation, echo=FALSE, fig.width=12, fig.asp=0.618}
+## FROM: https://github.com/tashapiro/TidyTuesday/blob/master/2019W31%20-%20Video%20Games.R
+df <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-30/video_games.csv")
+
+#convert release date to date format
+df$release_date <- as.Date(df$release_date, format = '%b %d,%Y')
+#extract year from release date
+df$release_year <- format(df$release_date,'%Y')
+#add 1 to make dplyr sums easy
+df$count <- 1
+#create dataset of games with metascores - filter out NA metsacores
+df_scores <- df %>% filter(!is.na(metascore))
+
+#Who are the top publishers by # of games?
+top_publishers <- 
+  df_scores %>% 
+  group_by(publisher) %>% 
+  summarise(games = sum(count)) %>% 
+  top_n(10,games)
+
+#reduce dataset to only look at games by top 10 publshers
+df_scores <- df_scores %>% filter(publisher %in% top_publishers$publisher)
+
+#get the average metascore overall 
+total_avg <- mean(df_scores$metascore)
+
+#get average per top publisher
+averages <- df_scores %>% group_by(publisher) %>% 
+  summarise(total_games = sum(count), 
+            average_score = mean(metascore))
+
+#merge averages per publisher with rest of dataset
+df_scores <- merge(df_scores, averages, by=c("publisher" = "publisher"))
+
+#format publisher name to all caps
+df_scores$publisher <- toupper(df_scores$publisher)
 
 
+#Plot Image w/ Annotations
+plot <- ggplot(df_scores, aes(x = reorder(publisher, average_score), y = metascore)) +
+  geom_jitter(aes(color = publisher), size = 5, alpha = 0.25, width = 0.15) +
+  ggforce::geom_mark_circle(x = 10, y = 94, color = 'grey50', 
+                            label.fill = NA, expand = unit(4, "mm")) +
+  geom_segment(aes(x = publisher, xend = publisher, 
+                   y = total_avg, yend = average_score), size = 0.5, color='gray30') +
+  geom_point(mapping = aes(x = publisher, y = average_score, fill = publisher), 
+             color = "gray30", shape = 21, size = 7, stroke = 1) +
+  geom_hline(aes(yintercept = total_avg), color = "gray30", size = 0.5) +
+  annotate("text", x = 6.6, y = 86, fontface = "bold", label = 'Average Overall') +
+  annotate("text", x = 6.3, y = 86, label = glue::glue('{round(total_avg, 1)} Metascore')) +
+  annotate("text", x = 2.5, y = 55, fontface = "italic", label = 'Average per publisher') +
+  annotate("text", x = 9.7, y = 45, fontface = "bold", label = 'Worst Game Overall') +
+  annotate("text", x = 9.4, y = 45, label = "Rogue Warrior") +
+  annotate("text", x = 9.6, y = 88, fontface = "bold", label = 'Best Games Overall') +
+  annotate("text", x = 9.3, y = 88, label = "Elder Scroll Series") +
+  coord_flip() +
+  scale_y_continuous(limits = c(25, 100))+
+  theme_minimal() +
+  theme(title = element_text(face = "bold"),
+        plot.subtitle = element_text(face = "italic"),
+        axis.title = element_text(face = "bold", size = 14),
+        axis.text.y = element_text(size = 10)) +
+  guides(color = FALSE, fill = FALSE) +
+  labs(title = "PC Game Ratings by Publisher",
+       subtitle = "Ratings based on Metascore out of 100",
+       caption = "Tanya Shapiro @tanya_shapiro",
+       x = "", y = 'METASCORE', color = "# of Owners")
+
+
+#create arrows for annotations
+arrows <- tibble(
+  x1 = c(6.2,        #Avg Overall
+         2.6,        #Avg Per Publisher
+         2.6,        #Avg Per Publisher
+         9.4,        #Worst Game
+         9.7),       #Best Game
+  x2 = c(5.5,        #Avg Overall
+         4.1,
+         3.1,
+         9.9,
+         9.9),
+  y1 = c(86,         #Avg Overall
+         55,         #Avg Per Publisher
+         55,         #Avg Per Publisher
+         40,
+         88),
+  y2 = c(total_avg,  #Avg Overall
+         70.2,       #Avg Per Publisher
+         68.2,       #Avg Per Publisher
+         30,
+         92))
+
+# add arrows
+p <- 
+  plot + 
+  geom_curve(data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+             arrow = arrow(length = unit(0.07, "inch")), size = 0.6,
+             color = "gray20", curvature = -0.25)
+
+p 
+```
+
+
+---
+
+```{r a_code, eval=FALSE}
+plot <- ggplot(df_scores, aes(x = reorder(publisher, average_score), 
+                              y = metascore)) +
+  geom_jitter(aes(color = publisher), size = 5, alpha = 0.25, width = 0.15) +
+  ggforce::geom_mark_circle(x = 10, y = 94, color = 'grey50', 
+                            label.fill = NA, expand = unit(4, "mm")) +
+  geom_segment(aes(x = publisher, xend = publisher, 
+                   y = total_avg, yend = average_score), 
+               size = 0.5, color='gray30') +
+  geom_point(mapping = aes(x = publisher, y = average_score, fill = publisher), 
+             color = "gray30", shape = 21, size = 7, stroke = 1) +
+  geom_hline(aes(yintercept = total_avg), color = "gray30", size = 0.5) +
+  annotate("text", x = 6.6, y = 86, fontface = "bold", 
+           label = 'Average Overall') +
+  annotate("text", x = 6.3, y = 86, 
+           label = glue::glue('{round(total_avg, 1)} Metascore')) +
+  annotate("text", x = 2.5, y = 55, fontface = "italic", 
+           label = 'Average per publisher') +
+  annotate("text", x = 9.7, y = 45, fontface = "bold", 
+           label = 'Worst Game Overall') +
+  annotate("text", x = 9.4, y = 45, 
+           label = "Rogue Warrior") +
+  annotate("text", x = 9.6, y = 88, fontface = "bold", 
+           label = 'Best Games Overall') +
+  annotate("text", x = 9.3, y = 88, 
+           label = "Elder Scroll Series") +
+  coord_flip() +
+  scale_y_continuous(limits = c(25, 100))+
+  theme_minimal() +
+  guides(color = FALSE, fill = FALSE) +
+  labs(title = "PC Game Ratings by Publisher",
+       subtitle = "Ratings based on Metascore out of 100",
+       caption = "Tanya Shapiro @tanya_shapiro",
+       x = "", y = 'METASCORE', color = "# of Owners")
+```
+
+---
+```{r, eval=FALSE}
+arrows <- tibble(
+  x1 = c(6.2,        #Avg Overall
+         2.6,        #Avg Per Publisher
+         2.6,        #Avg Per Publisher
+         9.4,        #Worst Game
+         9.7),       #Best Game
+  x2 = c(5.5,        #Avg Overall
+         4.1,
+         3.1,
+         9.9,
+         9.9),
+  y1 = c(86,         #Avg Overall
+         55,         #Avg Per Publisher
+         55,         #Avg Per Publisher
+         40,
+         88),
+  y2 = c(total_avg,  #Avg Overall
+         70.2,       #Avg Per Publisher
+         68.2,       #Avg Per Publisher
+         30,
+         92))
+
+# add arrows
+p <- 
+  plot + 
+  geom_curve(data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+             arrow = arrow(length = unit(0.07, "inch")), size = 0.6,
+             color = "gray20", curvature = -0.25)
+```
+
+---
+
+king of tidytuesday
+
+
+---
 
 In Summary 
 
 - Change your background
 - Pick a nice font and font size 
+- Annotate away! 
 
+--- 
 
-packages used
+Take a sad plot and make it better (from Alison Hill: 
+  https://alison.rbind.io/talk/2018-ohsu-sad-plot-better/
+  
+BBC Visual and Data Journalism cookbook for R graphics: 
+  https://bbc.github.io/rcookbook/
+
+The Economist: 
+  https://medium.economist.com/mistakes-weve-drawn-a-few-8cdd8a42d368
+  
+New way to make alluvial charts: 
+  https://ggforce.data-imaginist.com/reference/geom_parallel_sets.html
+  
+You Can Design a Good Chart with R: 
+  https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
+  
+---
+
