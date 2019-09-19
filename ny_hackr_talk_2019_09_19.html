@@ -288,10 +288,54 @@ ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 
 ---
 
-imageMagick
+
+```r
+library(magick)
+propic &lt;- image_read(here::here("images/propic.png"))
+bigdata &lt;- image_read('https://jeroen.github.io/images/bigdata.jpg')
+bdl &lt;- image_scale(image_rotate(image_background(propic, "none"), 300), "x150")
+ic &lt;- image_composite(image_scale(bigdata, "x400"), bdl, offset = "+170+140")
+image_write(ic, here::here("images/ic.png"))
+```
+
+![](images/ic.png)
+
+---
+
+
+```r
+library(magick)
+jared &lt;- image_read(here::here("images/jared.jpeg"))
+j1 &lt;- image_annotate(jared, "hey....
+I heard you 
+were the 
+September speaker 
+for the meetup", 
+size = 20, 
+gravity = "east", color = "white")
+
+image_write(j1, here::here("images/j1.png"))
+```
+
+![](images/j1.png)
+
+
+---
 
 
 
+
+
+
+
+```r
+f1 &lt;- image_read(here::here("images/fig.png"))
+s1 &lt;- image_read(here::here("images/simpsons.jpeg"))
+out &lt;- image_composite(f1, s1, offset = "+1600+30")
+image_write(out, here::here("images/out.png"))
+```
+
+![](images/out.png)
 
 ---
 
@@ -308,14 +352,10 @@ ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) +
   theme_minimal() +
   theme(legend.position = c(0.9, 0.6)) +
   labs(fill = "Pet Species") +
-  theme(text = element_text(size = 8, family = "Cinzel"))
+  theme(text = element_text(size = 9, family = "Cinzel"))
 ```
 
 ![](ny_hackr_talk_2019_09_19_files/figure-html/got2-1.png)&lt;!-- --&gt;
-
----
-
-gghiglight
 
 ---
 
@@ -538,17 +578,45 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 ---
 
-In Summary 
+### In Summary 
 
 - Change your background
 
+--
+
 - Pick a nice font and font size 
+
+--
 
 - Annotate away! 
 
+--
+
 - Use fun ggplot adjacent packages
 
+--
+
+- Add images
+
+
 --- 
+
+
+### Thank you
+
+- Samuel Crane, @samuelcrane and Amplify
+- Sebastian Teran Hidlago, @steranhidalgo
+- RLadies-NYC, @RLadiesNYC
+- Jared Lander, @jaredlander
+- all the #TidyTuesday contributors
+- the Rstats community 
+
+
+
+---
+
+
+### More resources
 
 Take a sad plot and make it better (from Alison Hill: 
   https://alison.rbind.io/talk/2018-ohsu-sad-plot-better/
@@ -565,10 +633,7 @@ New way to make alluvial charts:
 You Can Design a Good Chart with R (on the Tufte tweetstorm): 
   https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
   
-Use Slack to help make your own color pallettes:
-  https://twitter.com/ludmila_janda/status/1166078113719230464
-  
----
+ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gallery.html
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>

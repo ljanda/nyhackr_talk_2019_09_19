@@ -23,6 +23,7 @@ library(ggridges)
 library(extrafont)
 library(ggforce)
 library(cowplot)
+library(tvthemes)
 library(ggpointdensity)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 150)
 ```
@@ -196,7 +197,7 @@ ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) +
 
 ---
 
-```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618, cache=TRUE}
+```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=6, fig.height=2.7, cache=TRUE}
 ggplot(diamonds, aes(price, cut)) + 
   geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
                       alpha = 0.5, size = 0.25, jittered_points = TRUE,  
@@ -362,12 +363,81 @@ ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 
 ---
 
-imageMagick
-
-```{r}
-
+```{r magick, echo=TRUE}
+library(magick)
+propic <- image_read(here::here("images/propic.png"))
+bigdata <- image_read('https://jeroen.github.io/images/bigdata.jpg')
+bdl <- image_scale(image_rotate(image_background(propic, "none"), 300), "x150")
+ic <- image_composite(image_scale(bigdata, "x400"), bdl, offset = "+170+140")
+image_write(ic, here::here("images/ic.png"))
 ```
 
+![](images/ic.png)
+
+---
+
+```{r magick2, echo=TRUE}
+library(magick)
+jared <- image_read(here::here("images/jared.jpeg"))
+j1 <- image_annotate(jared, "hey....
+I heard you 
+were the 
+September speaker 
+for the meetup", 
+size = 20, 
+gravity = "east", color = "white")
+
+image_write(j1, here::here("images/j1.png"))
+```
+
+![](images/j1.png)
+
+
+---
+
+```{r mysimpsons, echo=FALSE}
+simpsons <- 
+  readr::read_delim("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-27/simpsons-guests.csv", delim = "|") 
+
+fig <- simpsons %>% 
+  dplyr::distinct(episode_title) %>% 
+  mutate(Homer = ifelse(str_detect(episode_title, "Homer"), 1, 0), 
+         Marge = ifelse(str_detect(episode_title, "Marge"), 1, 0), 
+         Lisa = ifelse(str_detect(episode_title, "Lisa"), 1, 0), 
+         Bart = ifelse(str_detect(episode_title, "Bart"), 1, 0), 
+         Maggie = ifelse(str_detect(episode_title, "Maggie"), 1, 0)) %>% 
+  gather(2:6, key = "name", value = "count") %>% 
+  group_by(name) %>% 
+  summarise(count = (sum(count))) %>% 
+  mutate(name = factor(name, levels = c("Homer", "Marge", 
+                                        "Bart", "Lisa", "Maggie"))) %>% 
+  ggplot(aes(reorder(name, -count), count, fill = name)) +
+  geom_col(alpha = 0.75) +
+  scale_fill_manual(values = c("#fed90f", "#ABC67D", "#0363C3", 
+                               "#FC0209", "#d1b271"), guide = FALSE) +
+  labs(y = "Count", x = "", 
+       title = "Homeric titles take the lead", 
+       subtitle = "Number of episode titles with each character", 
+       caption = "@ludmila_janda") +
+  theme_minimal() +
+  theme(text = element_text(family = "Gaegu", size = 40),
+        axis.text = element_text(family = "Gaegu", size = 35)) 
+
+ggsave(fig, filename = here::here("images/fig.png"), dpi = 300, type = "cairo", 
+       width = 6.5, height = 4, units = "in")
+```
+
+
+
+
+```{r mysimpsons2, fig.width=1, fig.asp=0.618}
+f1 <- image_read(here::here("images/fig.png"))
+s1 <- image_read(here::here("images/simpsons.jpeg"))
+out <- image_composite(f1, s1, offset = "+1600+30")
+image_write(out, here::here("images/out.png"))
+```
+
+![](images/out.png)
 
 ---
 
@@ -392,12 +462,8 @@ ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) +
   theme_minimal() +
   theme(legend.position = c(0.9, 0.6)) +
   labs(fill = "Pet Species") +
-  theme(text = element_text(size = 8, family = "Cinzel"))
+  theme(text = element_text(size = 9, family = "Cinzel"))
 ```
-
----
-
-gghiglight
 
 ---
 
@@ -609,8 +675,9 @@ plot <- ggplot(df_scores, aes(x = reorder(publisher, average_score), y = metasco
   theme_minimal() +
   theme(title = element_text(face = "bold"),
         plot.subtitle = element_text(face = "italic"),
-        axis.title = element_text(face = "bold", size = 14),
-        axis.text.y = element_text(size = 10)) +
+        plot.caption = element_text(size = 16), 
+        axis.title = element_text(face = "bold", size = 20),
+        axis.text.y = element_text(size = 14)) +
   guides(color = FALSE, fill = FALSE) +
   labs(title = "PC Game Ratings by Publisher",
        subtitle = "Ratings based on Metascore out of 100",
@@ -747,17 +814,45 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 ---
 
-In Summary 
+### In Summary 
 
 - Change your background
 
+--
+
 - Pick a nice font and font size 
+
+--
 
 - Annotate away! 
 
+--
+
 - Use fun ggplot adjacent packages
 
+--
+
+- Add images
+
+
 --- 
+
+
+### Thank you
+
+- Samuel Crane, @samuelcrane and Amplify
+- Sebastian Teran Hidlago, @steranhidalgo
+- RLadies-NYC, @RLadiesNYC
+- Jared Lander, @jaredlander
+- all the #TidyTuesday contributors
+- the Rstats community 
+
+
+
+---
+
+
+### More resources
 
 Take a sad plot and make it better (from Alison Hill: 
   https://alison.rbind.io/talk/2018-ohsu-sad-plot-better/
@@ -774,8 +869,9 @@ New way to make alluvial charts:
 You Can Design a Good Chart with R (on the Tufte tweetstorm): 
   https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
   
-Use Slack to help make your own color pallettes:
-  https://twitter.com/ludmila_janda/status/1166078113719230464
+ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gallery.html
   
----
+
+  
+
 
