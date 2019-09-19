@@ -59,7 +59,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```{r bad_graph, echo=FALSE, fig.height=5, fig.width=7}
 data(diamonds)
 
-ggplot(diamonds, aes(cut, price)) + 
+ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut")
 ```
@@ -67,7 +67,7 @@ ggplot(diamonds, aes(cut, price)) +
 ---
 
 ```{r theme, echo=TRUE, fig.height=5, fig.width=7}
-ggplot(diamonds, aes(cut, price)) + 
+ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
   theme_minimal()
@@ -84,13 +84,15 @@ theme_diamonds <- function(x) {
         plot.caption = element_text(color = "skyblue"),
         plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
         panel.background = element_rect(fill = "white"),
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank(), 
+        plot.background = element_rect(fill = "grey"), 
+        back)
 }
 
 ```
 
 ```{r, echo=FALSE, fig.width=6, fig.height=5}
-ggplot(diamonds, aes(cut, price)) + 
+ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
   theme_diamonds()
@@ -340,20 +342,33 @@ sim_data_pre_post %>%
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "grey"), 
-        strip.text.x = element_text(size = 7))
+        strip.text.x = element_text(size = 12))
 ```
 
 ---
 
 ## Alluvial Plot Code
-```{r myalluvial_code, eval=FALSE}
+```{r myalluvial_code, message=FALSE}
 sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>% 
   select(student, unit_title, assessment, score_level) %>% 
   mutate(score_level = factor(score_level), 
          assessment = factor(assessment, levels = c("pre", "post"))) %>% 
-  spread(assessment, score_level) %>%  # get wide dataset (pivot_wider)
-  ggalluvial::to_lodes(key = "assessment", axes = 3:4) # set up dataset
+  spread(assessment, score_level)  # get wide dataset (pivot_wider)
 
+head(sim_data_pre_post, 5)
+```
+
+```{r}
+
+sim_data_pre_post <- sim_data_pre_post %>% 
+  ggalluvial::to_lodes_form(key = "assessment", axes = 3:4) # set up dataset
+
+head(sim_data_pre_post, 5)
+```
+
+---
+
+```{r myalluvial_code3, eval=FALSE}  
 sim_data_pre_post %>% 
   ggplot(aes(x = assessment,              # categorical x var (pre or post)
              stratum = fct_rev(stratum),  # categorical var (score_level)

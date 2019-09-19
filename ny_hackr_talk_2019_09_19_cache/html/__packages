@@ -1,10 +1,4 @@
 base
-methods
-datasets
-utils
-grDevices
-graphics
-stats
 tidyverse
 ggplot2
 tibble
@@ -18,3 +12,5 @@ scales
 extrafont
 viridisLite
 viridis
+ggforce
+cowplot
