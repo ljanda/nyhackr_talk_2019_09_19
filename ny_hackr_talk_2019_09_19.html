@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>The ggplot glow-up</title>
+    <title>the ggplot glow-up</title>
     <meta charset="utf-8" />
     <meta name="author" content="Ludmila Janda" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
@@ -12,7 +12,8 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# The ggplot glow-up
+# the ggplot glow-up
+## making lovely data visualizations in R
 ### Ludmila Janda
 ### Amplify
 ### 2019/09/19
@@ -25,27 +26,34 @@ class: center, middle, inverse, title-slide
 # Amplify
 
 ![](images/amplify_science.jpg)
+
 ---
 
-# Motivation
+[Glow-up definition](https://twitter.com/zhiiiyang/status/1135743078881304576)
+
+![](images/hgu.png)
+
+---
+
+### Motivation
 
 ![](images/tufte_tweet.png)
 
 ---
 
-# Motivation
+### Motivation
 
-![](images/blocked_by_tufte1.png)
+![](images/tufte1.png)
 
 ---
 
-# Motivation
+### Motivation
 
 ![](images/blocked_by_tufte2.png)
 
 ---
 
-# Motivation
+### Motivation
 
 - One of the great powers of R is visualization
 
@@ -59,7 +67,7 @@ class: center, middle, inverse, title-slide
 
 
 ```r
-ggplot(diamonds, aes(cut, price)) + 
+ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
   theme_minimal()
@@ -68,35 +76,43 @@ ggplot(diamonds, aes(cut, price)) +
 ![](ny_hackr_talk_2019_09_19_files/figure-html/theme-1.png)&lt;!-- --&gt;
 
 ---
-# Make your own theme! 
+
+### Make your own theme!
 
 ```r
 theme_diamonds &lt;- function(x) {
   theme(text = element_text(family = "Luminari"),
-        axis.text = element_text(size = 12, color = "skyblue"),
-        axis.title = element_text(size = 14, color = "skyblue"),
-        plot.title = element_text(size = 16, face = "bold", color = "skyblue"),
+        axis.text = element_text(size = 10, color = "skyblue"),
+        axis.title.x = 
+          element_text(size = 12, color = "skyblue", vjust = -3),
+        axis.title.y = 
+          element_text(size = 12, color = "skyblue", vjust = 6),
+        axis.line.x = element_line(color  = "gold"), 
+        axis.line.y = element_line(color  = "gold"), 
+        axis.ticks = element_line(color  = "gold"),
+        plot.title = 
+          element_text(size = 14, face = "bold", color = "skyblue"),
         plot.caption = element_text(color = "skyblue"),
-        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, "cm"),
         panel.background = element_rect(fill = "white"),
         panel.grid.minor = element_blank())
 }
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+---
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/use_theme_diamonds-1.png)&lt;!-- --&gt;
 
 ---
 
 
 ```r
 library(scales)
-
 ggplot(diamonds, aes(cut, price)) + 
   geom_boxplot() +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_diamonds() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds()
 ```
 
 ![](ny_hackr_talk_2019_09_19_files/figure-html/scales-1.png)&lt;!-- --&gt;
@@ -106,9 +122,8 @@ ggplot(diamonds, aes(cut, price)) +
 
 ```r
 ggplot(diamonds, aes(cut, price)) + 
-  geom_dotplot(binaxis = "y", stackdir = "center", 
-               stackratio = 0.5, dotsize = 0.5, 
-               binwidth = 30, alpha = 0.5) +
+  geom_dotplot(binaxis = "y", stackdir = "center", stackratio = 0.5, 
+               dotsize = 0.5, binwidth = 30, alpha = 0.5) +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
   theme_diamonds() 
@@ -121,10 +136,9 @@ ggplot(diamonds, aes(cut, price)) +
 
 ```r
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(
+  ggridges::geom_density_ridges(alpha = 0.5,
                       scale = 1.4,                # ridge height/overlap 
-                      rel_min_height = 0.001,     # where to draw line
-                      alpha = 0.5) +    
+                      rel_min_height = 0.001) +   # where to draw line
   scale_x_continuous(limits = c(0, 22000),        # set cutoff 
                      expand = c(0.01, 0),         # allow expansion
                      label = comma) +       
@@ -140,8 +154,7 @@ ggplot(diamonds, aes(price, cut)) +
 
 ```r
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                alpha = 0.5,
+  geom_density_ridges(scale = 1.4, rel_min_height = 0.001, alpha = 0.5,
                                 quantile_lines = TRUE, quantiles = 2) +  
   scale_x_continuous(limits = c(0, 22000), 
                      expand = c(0.01, 0), label = comma) +       
@@ -158,10 +171,10 @@ ggplot(diamonds, aes(price, cut)) +
 ```r
 library(viridis)
 ggplot(diamonds, aes(price, cut, fill = ..x..)) + 
-  ggridges::geom_density_ridges_gradient(scale = 1.4, 
-                                         rel_min_height = 0.001, 
-                                         gradient_lwd = 1) +  ## add gradient  
-  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  geom_density_ridges_gradient(scale = 1.4, rel_min_height = 0.001, 
+                               gradient_lwd = 1) +  ## add gradient  
+  scale_x_continuous(limits = c(0, 2000), 
+                     expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
   viridis::scale_fill_viridis(name = "Price", option = "D") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
@@ -175,11 +188,11 @@ ggplot(diamonds, aes(price, cut, fill = ..x..)) +
 
 ```r
 ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) + 
-  ggridges::stat_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                geom = "density_ridges_gradient",
-                                calc_ecdf = TRUE, quantiles = 4, 
-                                quantile_lines = TRUE) +  
-  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  stat_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                      geom = "density_ridges_gradient", calc_ecdf = TRUE, 
+                      quantiles = 4, quantile_lines = TRUE) +  
+  scale_x_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
   viridis::scale_fill_viridis(discrete = TRUE, name = "Quartiles") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
@@ -193,12 +206,10 @@ ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) +
 
 ```r
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                alpha = 0.5,
-                                jittered_points = TRUE,  ## add points 
-                                point_shape = "|", point_size = 3, 
-                                size = 0.25, 
-                                position = position_jitter(height = 0)) + 
+  geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                      alpha = 0.5, size = 0.25, jittered_points = TRUE,  
+                      point_shape = "|", point_size = 3, 
+                      position = position_jitter(height = 0)) + 
   scale_x_continuous(limits = c(0, 22000), 
                      expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
@@ -209,11 +220,50 @@ ggplot(diamonds, aes(price, cut)) +
 ![](ny_hackr_talk_2019_09_19_files/figure-html/ridgeplotj-1.png)&lt;!-- --&gt;
 
 ---
-#TidyTuesday
 
-- [Github](https://github.com/rfordatascience/tidytuesday)
+![](ny_hackr_talk_2019_09_19_files/figure-html/raincloud-1.png)&lt;!-- --&gt;
 
-- [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
+---
+
+
+```r
+## FROM: https://orchid00.github.io/tidy_raincloudplot
+source("see code above")
+
+lb &lt;- function(x) mean(x) - ((0.5)*sd(x))
+ub &lt;- function(x) mean(x) + ((0.5)*sd(x))
+
+sumld &lt;- diamonds %&gt;% 
+  group_by(cut) %&gt;% 
+  summarise(mean = mean(price), 
+            median = median(price), 
+            lower = lb(price), 
+            upper = ub(price))
+
+ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = price, color = cut), 
+             position = position_jitter(width = .15), 
+             size = .5, alpha = 0.8) +
+  geom_point(data = sumld, aes(x = cut, y = mean), 
+             position = position_nudge(x = 0.3), size = 2.5) +
+  geom_errorbar(data = sumld, aes(ymin = lower, ymax = upper, y = mean), 
+                position = position_nudge(x = 0.3), width = 0) +
+  scale_y_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) + 
+  scale_x_discrete(expand = c(0.1, 0)) +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_diamonds() 
+```
+
+
+---
+### TidyTuesday
+
+[Github](https://github.com/rfordatascience/tidytuesday), [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
 
 ![](images/ttrocks.png)
 
@@ -234,7 +284,14 @@ plot &lt;-
 ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/simpsons2-1.png)&lt;!-- --&gt;
+
+---
+
+imageMagick
+
+
+
 
 ---
 
@@ -251,10 +308,10 @@ ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) +
   theme_minimal() +
   theme(legend.position = c(0.9, 0.6)) +
   labs(fill = "Pet Species") +
-  theme(text = element_text(size = 16, family = "Cinzel"))
+  theme(text = element_text(size = 8, family = "Cinzel"))
 ```
 
-![](ny_hackr_talk_2019_09_19_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+![](ny_hackr_talk_2019_09_19_files/figure-html/got2-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -262,21 +319,63 @@ gghiglight
 
 ---
 
-## Alluvial Plot 
+### Alluvial Plot 
 ![](ny_hackr_talk_2019_09_19_files/figure-html/myalluvial-1.png)&lt;!-- --&gt;
 
 ---
 
-## Alluvial Plot Code
+### Alluvial Plot Code
 
 ```r
 sim_data_pre_post &lt;- read_csv(here::here("sim_data_pre_post.csv")) %&gt;% 
   select(student, unit_title, assessment, score_level) %&gt;% 
   mutate(score_level = factor(score_level), 
          assessment = factor(assessment, levels = c("pre", "post"))) %&gt;% 
-  spread(assessment, score_level) %&gt;%  # get wide dataset (pivot_wider)
-  ggalluvial::to_lodes(key = "assessment", axes = 3:4) # set up dataset
+  spread(assessment, score_level)  # get wide dataset (pivot_wider)
 
+head(sim_data_pre_post, 5)
+```
+
+```
+## # A tibble: 5 x 4
+##   student unit_title                      pre   post 
+##     &lt;dbl&gt; &lt;chr&gt;                           &lt;fct&gt; &lt;fct&gt;
+## 1       1 Dinosaur Domestication          2     4    
+## 2       1 Earth's Giant Turtle            2     1    
+## 3       1 Life on Mars                    1     2    
+## 4       1 Potions                         1     4    
+## 5       1 Unicorn Traits and Reproduction 1     4
+```
+
+---
+
+### Alluvial Plot Code
+
+
+```r
+sim_data_pre_post &lt;- sim_data_pre_post %&gt;% 
+  ggalluvial::to_lodes_form(key = "assessment", axes = 3:4) # set up dataset
+
+head(sim_data_pre_post, 5)
+```
+
+```
+## # A tibble: 5 x 5
+##   student unit_title                      alluvium assessment stratum
+##     &lt;dbl&gt; &lt;chr&gt;                              &lt;int&gt; &lt;fct&gt;      &lt;fct&gt;  
+## 1       1 Dinosaur Domestication                 1 pre        2      
+## 2       1 Earth's Giant Turtle                   2 pre        2      
+## 3       1 Life on Mars                           3 pre        1      
+## 4       1 Potions                                4 pre        1      
+## 5       1 Unicorn Traits and Reproduction        5 pre        1
+```
+
+---
+
+### Alluvial Plot Code
+
+
+```r
 sim_data_pre_post %&gt;% 
   ggplot(aes(x = assessment,              # categorical x var (pre or post)
              stratum = fct_rev(stratum),  # categorical var (score_level)
@@ -288,46 +387,51 @@ sim_data_pre_post %&gt;%
   scale_fill_manual("Score Level",
                     values = c("1" = "#4d5050", "2" = "#c2c5c6", 
                                "3" = "#f2ac80", "4" = "#F37321")) +
+  scale_y_continuous(labels = comma) +
   labs(x = "") +
-  facet_wrap(~unit_title, scales = "free_y") +   # let y scale vary by facet
+  facet_wrap(~unit_title, scales = "free_y") + 
   theme_minimal() + 
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "grey"), 
-        strip.text.x = element_text(size = 7))
+        axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 14), 
+        strip.text.x = element_text(size = 16), 
+        legend.position = "bottom", 
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16))
 ```
+
+---
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ggalluvial2-1.png)&lt;!-- --&gt;
 
 ---
 
 
 ```r
 ## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
-library(ggalluvial)
-job_outcomes &lt;- read_csv(here::here("job_outcomes.csv"))
 
 job_outcomes %&gt;% 
   mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %&gt;% 
-  to_lodes(key = "contact", axes = 2:5) %&gt;% 
+  ggalluvial::to_lodes_form(key = "contact", axes = 2:5) %&gt;% 
   ggplot(aes(x = contact, stratum = stratum, 
              alluvium = alluvium, label = stratum)) + 
-  geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
+  geom_alluvium(aes(fill = final_outcome), 
+                color = "darkgrey", na.rm = TRUE) +
   geom_stratum(na.rm = TRUE) +
   geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
-  theme_minimal() + 
-  theme(text = element_text(size = 12)) +
+  scale_fill_manual(values = c("ghosted" = "#F0E442", 
+                               "no role" = "#CC79A7",
+                               "withdrew" = "#0072B2", 
+                               "rejected" = "#D55E00",
+                               "offer" = "#009E73")) + 
   labs(x = "", fill = "Final Outcome", 
        caption = "David Neuzerling @mdneuzerling") + 
-  scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
-                               "withdrew" = "#0072B2", "rejected" = "#D55E00",
-                               "offer" = "#009E73")) 
+  theme_minimal(legend.position = "bottom") + 
+  theme(text = element_text(size = 12)) 
 ```
-
-![](ny_hackr_talk_2019_09_19_files/figure-html/ggalluvial1-1.png)&lt;!-- --&gt;
-
----
-
-![](ny_hackr_talk_2019_09_19_files/figure-html/ggalluvial2-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -408,7 +512,28 @@ p &lt;-
 
 ---
 
-waffle plots
+[Cédric Scherer, king of #tidytuesday](https://github.com/Z3tt/TidyTuesday)
+
+![](images/2019_18_BirdCollisions.png)
+
+---
+
+
+```r
+## FROM: https://twitter.com/lpmkremer/status/1168912680767447040?s=21
+
+dat &lt;- bind_rows(
+  tibble(x = rnorm(7000, sd = 1), y = rnorm(7000, sd = 10), group = "foo"),
+  tibble(x = rnorm(3000, mean = 1, sd = .5), 
+         y = rnorm(3000, mean = 7, sd = 5), group = "bar"))
+
+ggplot(data = dat, mapping = aes(x = x, y = y)) +
+  geom_pointdensity(adjust = 3) +
+  scale_color_viridis() + 
+  theme_minimal()
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/ggpointdensity-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -416,8 +541,12 @@ waffle plots
 In Summary 
 
 - Change your background
+
 - Pick a nice font and font size 
+
 - Annotate away! 
+
+- Use fun ggplot adjacent packages
 
 --- 
 
@@ -433,8 +562,11 @@ The Economist:
 New way to make alluvial charts: 
   https://ggforce.data-imaginist.com/reference/geom_parallel_sets.html
   
-You Can Design a Good Chart with R: 
+You Can Design a Good Chart with R (on the Tufte tweetstorm): 
   https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
+  
+Use Slack to help make your own color pallettes:
+  https://twitter.com/ludmila_janda/status/1166078113719230464
   
 ---
     </textarea>

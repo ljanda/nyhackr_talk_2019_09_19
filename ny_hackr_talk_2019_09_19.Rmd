@@ -1,6 +1,6 @@
 ---
-title: "The ggplot glow-up"
-subtitle: "Making Lovely Data Visualizations in R"
+title: "the ggplot glow-up"
+subtitle: "making lovely data visualizations in R"
 author: "Ludmila Janda"
 institute: "Amplify"
 date: "2019/09/19"
@@ -19,10 +19,12 @@ output:
 options(htmltools.dir.version = FALSE)
 library(tidyverse)
 library(scales)
+library(ggridges)
 library(extrafont)
 library(ggforce)
 library(cowplot)
-knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 300)
+library(ggpointdensity)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 150)
 ```
 
 # Amplify
@@ -37,25 +39,25 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 300)
 
 ---
 
-# Motivation
+### Motivation
 
 ![](images/tufte_tweet.png)
 
 ---
 
-# Motivation
+### Motivation
 
 ![](images/tufte1.png)
 
 ---
 
-# Motivation
+### Motivation
 
 ![](images/blocked_by_tufte2.png)
 
 ---
 
-# Motivation
+### Motivation
 
 - One of the great powers of R is visualization
 
@@ -63,7 +65,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 300)
 
 - Yet graphs like this persist 
 
-```{r bad_graph, echo=FALSE, fig.height=5, fig.width=7}
+```{r bad_graph, echo=FALSE, fig.width=6.5, fig.asp=0.618}
 data(diamonds)
 
 ggplot(diamonds, aes(factor(cut), price)) + 
@@ -81,34 +83,31 @@ ggplot(diamonds, aes(factor(cut), price)) +
 ```
 
 ---
-# Make your own theme! 
 
-```{r nyr_theme}
-?theme
-
-```
-
----
-# Make your own theme! 
+### Make your own theme!
 ```{r theme_diamonds}
 theme_diamonds <- function(x) {
   theme(text = element_text(family = "Luminari"),
-        axis.text = element_text(size = 12, color = "skyblue"),
-        axis.title.x = element_text(size = 14, color = "skyblue", vjust = -3),
-        axis.title.y = element_text(size = 14, color = "skyblue", vjust = 6),
+        axis.text = element_text(size = 10, color = "skyblue"),
+        axis.title.x = 
+          element_text(size = 12, color = "skyblue", vjust = -3),
+        axis.title.y = 
+          element_text(size = 12, color = "skyblue", vjust = 6),
         axis.line.x = element_line(color  = "gold"), 
         axis.line.y = element_line(color  = "gold"), 
         axis.ticks = element_line(color  = "gold"),
-        plot.title = element_text(size = 16, face = "bold", color = "skyblue"),
+        plot.title = 
+          element_text(size = 14, face = "bold", color = "skyblue"),
         plot.caption = element_text(color = "skyblue"),
-        plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
+        plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, "cm"),
         panel.background = element_rect(fill = "white"),
         panel.grid.minor = element_blank())
 }
-
 ```
 
-```{r use_theme_diamonds, echo=FALSE, fig.width=7, fig.height=5}
+---
+
+```{r use_theme_diamonds, echo=FALSE, fig.width=6, fig.asp=0.618}
 ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
@@ -117,24 +116,21 @@ ggplot(diamonds, aes(factor(cut), price)) +
 
 ---
 
-```{r scales, echo=TRUE, message=FALSE, fig.height=5, fig.width=7}
+```{r scales, echo=TRUE, message=FALSE, fig.width=6.5, fig.asp=0.618}
 library(scales)
-
 ggplot(diamonds, aes(cut, price)) + 
   geom_boxplot() +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
-  theme_diamonds() + 
-  theme(axis.text = element_text(size = 12))
+  theme_diamonds()
 ```
 
 ---
 
-```{r dotplot, echo=TRUE, message=FALSE, fig.height=5, fig.width=7}
+```{r dotplot, echo=TRUE, message=FALSE, fig.width=6.5, fig.asp=0.618}
 ggplot(diamonds, aes(cut, price)) + 
-  geom_dotplot(binaxis = "y", stackdir = "center", 
-               stackratio = 0.5, dotsize = 0.5, 
-               binwidth = 30, alpha = 0.5) +
+  geom_dotplot(binaxis = "y", stackdir = "center", stackratio = 0.5, 
+               dotsize = 0.5, binwidth = 30, alpha = 0.5) +
   scale_y_continuous(label = comma) +
   labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
   theme_diamonds() 
@@ -142,12 +138,11 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=7, fig.asp=0.618}
+```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(
+  ggridges::geom_density_ridges(alpha = 0.5,
                       scale = 1.4,                # ridge height/overlap 
-                      rel_min_height = 0.001,     # where to draw line
-                      alpha = 0.5) +    
+                      rel_min_height = 0.001) +   # where to draw line
   scale_x_continuous(limits = c(0, 22000),        # set cutoff 
                      expand = c(0.01, 0),         # allow expansion
                      label = comma) +       
@@ -158,10 +153,9 @@ ggplot(diamonds, aes(price, cut)) +
 
 ---
 
-```{r ridgeplotm, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+```{r ridgeplotm, echo=TRUE, message=FALSE, fig.width=5, fig.height=3}
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                alpha = 0.5,
+  geom_density_ridges(scale = 1.4, rel_min_height = 0.001, alpha = 0.5,
                                 quantile_lines = TRUE, quantiles = 2) +  
   scale_x_continuous(limits = c(0, 22000), 
                      expand = c(0.01, 0), label = comma) +       
@@ -172,13 +166,13 @@ ggplot(diamonds, aes(price, cut)) +
 
 ---
 
-```{r ridgeplotv, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+```{r ridgeplotv, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618}
 library(viridis)
 ggplot(diamonds, aes(price, cut, fill = ..x..)) + 
-  ggridges::geom_density_ridges_gradient(scale = 1.4, 
-                                         rel_min_height = 0.001, 
-                                         gradient_lwd = 1) +  ## add gradient  
-  scale_x_continuous(limits = c(0, 2000), expand = c(0.01, 0), label = comma) +       
+  geom_density_ridges_gradient(scale = 1.4, rel_min_height = 0.001, 
+                               gradient_lwd = 1) +  ## add gradient  
+  scale_x_continuous(limits = c(0, 2000), 
+                     expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
   viridis::scale_fill_viridis(name = "Price", option = "D") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
@@ -187,13 +181,13 @@ ggplot(diamonds, aes(price, cut, fill = ..x..)) +
 
 ---
 
-```{r ridgeplotvq, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+```{r ridgeplotvq, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) + 
-  ggridges::stat_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                geom = "density_ridges_gradient",
-                                calc_ecdf = TRUE, quantiles = 4, 
-                                quantile_lines = TRUE) +  
-  scale_x_continuous(limits = c(0, 22000), expand = c(0.01, 0), label = comma) +       
+  stat_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                      geom = "density_ridges_gradient", calc_ecdf = TRUE, 
+                      quantiles = 4, quantile_lines = TRUE) +  
+  scale_x_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
   viridis::scale_fill_viridis(discrete = TRUE, name = "Quartiles") +
   labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
@@ -202,14 +196,12 @@ ggplot(diamonds, aes(price, cut, fill = factor(..quantile..))) +
 
 ---
 
-```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618, cache=TRUE}
+```{r ridgeplotj, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618, cache=TRUE}
 ggplot(diamonds, aes(price, cut)) + 
-  ggridges::geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
-                                alpha = 0.5,
-                                jittered_points = TRUE,  ## add points 
-                                point_shape = "|", point_size = 3, 
-                                size = 0.25, 
-                                position = position_jitter(height = 0)) + 
+  geom_density_ridges(scale = 1.4, rel_min_height = 0.001, 
+                      alpha = 0.5, size = 0.25, jittered_points = TRUE,  
+                      point_shape = "|", point_size = 3, 
+                      position = position_jitter(height = 0)) + 
   scale_x_continuous(limits = c(0, 22000), 
                      expand = c(0.01, 0), label = comma) +       
   scale_y_discrete(expand = c(0.1, 0)) + 
@@ -219,7 +211,7 @@ ggplot(diamonds, aes(price, cut)) +
 
 ---
 
-```{r raincloud, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+```{r raincloud, echo=FALSE, message=FALSE, fig.width=12, fig.asp=0.618}
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
 lb <- function(x) mean(x) - ((0.5)*sd(x))
@@ -247,14 +239,19 @@ ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
   guides(fill = FALSE) +
   guides(color = FALSE) +
   coord_flip() +
-  theme_diamonds() 
+  theme_diamonds() +
+  theme(axis.text = element_text(size = 20),
+        axis.title.x = element_text(size = 25), 
+        axis.title.y = element_text(size = 25),
+        plot.title = element_text(size = 30), 
+        plot.margin = margin(t = 2, r = 2, b = 2, l = 2, "cm"))
 ```
 
 ---
 
 ```{r raincloud2, eval=FALSE}
 ## FROM: https://orchid00.github.io/tidy_raincloudplot
-source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+source("see code above")
 
 lb <- function(x) mean(x) - ((0.5)*sd(x))
 ub <- function(x) mean(x) + ((0.5)*sd(x))
@@ -269,7 +266,8 @@ sumld <- diamonds %>%
 ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
   geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
   geom_point(aes(y = price, color = cut), 
-             position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+             position = position_jitter(width = .15), 
+             size = .5, alpha = 0.8) +
   geom_point(data = sumld, aes(x = cut, y = mean), 
              position = position_nudge(x = 0.3), size = 2.5) +
   geom_errorbar(data = sumld, aes(ymin = lower, ymax = upper, y = mean), 
@@ -286,11 +284,9 @@ ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
 
 
 ---
-#TidyTuesday
+### TidyTuesday
 
-- [Github](https://github.com/rfordatascience/tidytuesday)
-
-- [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
+[Github](https://github.com/rfordatascience/tidytuesday), [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
 
 ![](images/ttrocks.png)
 
@@ -310,7 +306,7 @@ plot <-
 ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 ```
 
-```{r simpsons2, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.width=7}
+```{r simpsons2, echo=FALSE, warning=FALSE, message=FALSE, fig.height=3, fig.width=6}
 ## TAKEN FROM: https://github.com/GilHenriques/TidyTuesdays/tree/master/2019-08-27%20Simpsons%20guest%20stars
 
 library(sysfonts)
@@ -378,7 +374,7 @@ imageMagick
 ```{r got, echo=FALSE}
 ## FROM: http://rpubs.com/maraalexeev/529038
 library(gameofthrones)
-font_add_google(name = "Cinzel", family = "Cinzel")
+#font_add_google(name = "Cinzel", family = "Cinzel")
 
 pets <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-03-26/seattle_pets.csv")
 GOT_names <- c("Tyrion", "Jon", "Cersei", "Daenerys", "Sansa", "Arya", "Jaime", "Jorah", "Theon", "Samwell")
@@ -386,7 +382,7 @@ GOT_pets <- pets %>%
   filter(animals_name %in% GOT_names)
 ```
 
-```{r got2, fig.width=7, fig.height=5}
+```{r got2, fig.width=4, fig.asp=0.618}
 ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) + 
   geom_bar() + 
   scale_fill_got_d(option = "Targaryen", direction = - 1) +
@@ -396,7 +392,7 @@ ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) +
   theme_minimal() +
   theme(legend.position = c(0.9, 0.6)) +
   labs(fill = "Pet Species") +
-  theme(text = element_text(size = 16, family = "Cinzel"))
+  theme(text = element_text(size = 8, family = "Cinzel"))
 ```
 
 ---
@@ -405,8 +401,10 @@ gghiglight
 
 ---
 
-## Alluvial Plot 
+### Alluvial Plot 
 ```{r myalluvial, echo=FALSE, fig.width=12, fig.asp=0.618}
+library(ggalluvial)
+
 sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>% 
   select(student, unit_title, assessment, score_level) %>% 
   mutate(score_level = factor(score_level), 
@@ -425,6 +423,7 @@ sim_data_pre_post %>%
   scale_fill_manual("Score Level",
                     values = c("1" = "#4d5050", "2" = "#c2c5c6", 
                                "3" = "#f2ac80", "4" = "#F37321")) +
+  scale_y_continuous(labels = comma) +
   labs(x = "") +
   facet_wrap(~unit_title, scales = "free_y") + 
   theme_minimal() + 
@@ -432,12 +431,17 @@ sim_data_pre_post %>%
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "grey"), 
-        strip.text.x = element_text(size = 12))
+        axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 14), 
+        strip.text.x = element_text(size = 16), 
+        legend.position = "bottom", 
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16))
 ```
 
 ---
 
-## Alluvial Plot Code
+### Alluvial Plot Code
 ```{r myalluvial_code, message=FALSE}
 sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>% 
   select(student, unit_title, assessment, score_level) %>% 
@@ -448,6 +452,10 @@ sim_data_pre_post <- read_csv(here::here("sim_data_pre_post.csv")) %>%
 head(sim_data_pre_post, 5)
 ```
 
+---
+
+### Alluvial Plot Code
+
 ```{r}
 
 sim_data_pre_post <- sim_data_pre_post %>% 
@@ -457,6 +465,8 @@ head(sim_data_pre_post, 5)
 ```
 
 ---
+
+### Alluvial Plot Code
 
 ```{r myalluvial_code3, eval=FALSE}  
 sim_data_pre_post %>% 
@@ -470,34 +480,39 @@ sim_data_pre_post %>%
   scale_fill_manual("Score Level",
                     values = c("1" = "#4d5050", "2" = "#c2c5c6", 
                                "3" = "#f2ac80", "4" = "#F37321")) +
+  scale_y_continuous(labels = comma) +
   labs(x = "") +
-  facet_wrap(~unit_title, scales = "free_y") +   # let y scale vary by facet
+  facet_wrap(~unit_title, scales = "free_y") + 
   theme_minimal() + 
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "grey"), 
-        strip.text.x = element_text(size = 7))
+        axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 14), 
+        strip.text.x = element_text(size = 16), 
+        legend.position = "bottom", 
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16))
 
 ```
 
 ---
 
-```{r ggalluvial1, fig.width=4, fig.height=2.5}
-## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
-library(ggalluvial)
+```{r ggalluvial2, echo=FALSE, fig.width=14, fig.height=10}
 job_outcomes <- read_csv(here::here("job_outcomes.csv"))
 
 job_outcomes %>% 
   mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %>% 
-  to_lodes(key = "contact", axes = 2:5) %>% 
+  ggalluvial::to_lodes_form(key = "contact", axes = 2:5) %>% 
   ggplot(aes(x = contact, stratum = stratum, 
              alluvium = alluvium, label = stratum)) + 
   geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
   geom_stratum(na.rm = TRUE) +
-  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  geom_text(stat = "stratum", na.rm = TRUE, size = 6) + 
   theme_minimal() + 
-  theme(text = element_text(size = 12)) +
+  theme(text = element_text(size = 20), 
+        legend.position = "bottom") +
   labs(x = "", fill = "Final Outcome", 
        caption = "David Neuzerling @mdneuzerling") + 
   scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
@@ -507,23 +522,29 @@ job_outcomes %>%
 
 ---
 
-```{r ggalluvial2, echo=FALSE, fig.width=12, fig.asp=0.618}
+```{r ggalluvial1, eval = FALSE}
+## FROM: https://mdneuzerling.com/post/my-data-science-job-hunt/
 
 job_outcomes %>% 
   mutate(final_outcome = coalesce(outcome, `2nd stage`, `1st stage`)) %>% 
-  to_lodes(key = "contact", axes = 2:5) %>% 
+  ggalluvial::to_lodes_form(key = "contact", axes = 2:5) %>% 
   ggplot(aes(x = contact, stratum = stratum, 
              alluvium = alluvium, label = stratum)) + 
-  geom_alluvium(aes(fill = final_outcome), color = "darkgrey", na.rm = TRUE) +
+  geom_alluvium(aes(fill = final_outcome), 
+                color = "darkgrey", na.rm = TRUE) +
   geom_stratum(na.rm = TRUE) +
-  geom_text(stat = "stratum", na.rm = TRUE, size = 4) + 
-  theme_minimal() + 
-  theme(text = element_text(size = 20)) +
+  geom_text(stat = "stratum", na.rm = TRUE, size = 1) + 
+  scale_fill_manual(values = c("ghosted" = "#F0E442", 
+                               "no role" = "#CC79A7",
+                               "withdrew" = "#0072B2", 
+                               "rejected" = "#D55E00",
+                               "offer" = "#009E73")) + 
   labs(x = "", fill = "Final Outcome", 
        caption = "David Neuzerling @mdneuzerling") + 
-  scale_fill_manual(values = c("ghosted" = "#F0E442", "no role" = "#CC79A7",
-                               "withdrew" = "#0072B2", "rejected" = "#D55E00",
-                               "offer" = "#009E73")) 
+  theme_minimal(legend.position = "bottom") + 
+  theme(text = element_text(size = 12)) 
+
+
 ```
 
 ---
@@ -670,7 +691,7 @@ plot <- ggplot(df_scores, aes(x = reorder(publisher, average_score),
 ```
 
 ---
-```{r, eval=FALSE}
+```{r arrows, eval=FALSE}
 arrows <- tibble(
   x1 = c(6.2,        #Avg Overall
          2.6,        #Avg Per Publisher
@@ -703,19 +724,38 @@ p <-
 
 ---
 
-king of tidytuesday
+[Cédric Scherer, king of #tidytuesday](https://github.com/Z3tt/TidyTuesday)
+
+![](images/2019_18_BirdCollisions.png)
 
 ---
 
-https://twitter.com/lpmkremer/status/1168912680767447040?s=21
+```{r ggpointdensity, echo=TRUE, fig.width=4, fig.asp=0.618}
+## FROM: https://twitter.com/lpmkremer/status/1168912680767447040?s=21
+
+dat <- bind_rows(
+  tibble(x = rnorm(7000, sd = 1), y = rnorm(7000, sd = 10), group = "foo"),
+  tibble(x = rnorm(3000, mean = 1, sd = .5), 
+         y = rnorm(3000, mean = 7, sd = 5), group = "bar"))
+
+ggplot(data = dat, mapping = aes(x = x, y = y)) +
+  geom_pointdensity(adjust = 3) +
+  scale_color_viridis() + 
+  theme_minimal()
+```
+
 
 ---
 
 In Summary 
 
 - Change your background
+
 - Pick a nice font and font size 
+
 - Annotate away! 
+
+- Use fun ggplot adjacent packages
 
 --- 
 
