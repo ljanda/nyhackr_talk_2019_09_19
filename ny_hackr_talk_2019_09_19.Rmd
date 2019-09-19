@@ -1,6 +1,6 @@
 ---
 title: "The ggplot glow-up"
-subtitle: ""
+subtitle: "Making Lovely Data Visualizations in R"
 author: "Ludmila Janda"
 institute: "Amplify"
 date: "2019/09/19"
@@ -22,12 +22,19 @@ library(scales)
 library(extrafont)
 library(ggforce)
 library(cowplot)
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, dpi = 300)
 ```
 
 # Amplify
 
 ![](images/amplify_science.jpg)
+
+---
+
+[Glow-up definition](https://twitter.com/zhiiiyang/status/1135743078881304576)
+
+![](images/hgu.png)
+
 ---
 
 # Motivation
@@ -38,7 +45,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 # Motivation
 
-![](images/blocked_by_tufte1.png)
+![](images/tufte1.png)
 
 ---
 
@@ -75,23 +82,33 @@ ggplot(diamonds, aes(factor(cut), price)) +
 
 ---
 # Make your own theme! 
+
 ```{r nyr_theme}
+?theme
+
+```
+
+---
+# Make your own theme! 
+```{r theme_diamonds}
 theme_diamonds <- function(x) {
   theme(text = element_text(family = "Luminari"),
         axis.text = element_text(size = 12, color = "skyblue"),
-        axis.title = element_text(size = 14, color = "skyblue"),
+        axis.title.x = element_text(size = 14, color = "skyblue", vjust = -3),
+        axis.title.y = element_text(size = 14, color = "skyblue", vjust = 6),
+        axis.line.x = element_line(color  = "gold"), 
+        axis.line.y = element_line(color  = "gold"), 
+        axis.ticks = element_line(color  = "gold"),
         plot.title = element_text(size = 16, face = "bold", color = "skyblue"),
         plot.caption = element_text(color = "skyblue"),
         plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"),
         panel.background = element_rect(fill = "white"),
-        panel.grid.minor = element_blank(), 
-        plot.background = element_rect(fill = "grey"), 
-        back)
+        panel.grid.minor = element_blank())
 }
 
 ```
 
-```{r, echo=FALSE, fig.width=6, fig.height=5}
+```{r use_theme_diamonds, echo=FALSE, fig.width=7, fig.height=5}
 ggplot(diamonds, aes(factor(cut), price)) + 
   geom_boxplot() +
   labs(title = "Diamond Prices By Cut") +
@@ -125,7 +142,7 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
-```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=7, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(
                       scale = 1.4,                # ridge height/overlap 
@@ -201,7 +218,71 @@ ggplot(diamonds, aes(price, cut)) +
 ```
 
 ---
-Raincloud Plot
+
+```{r raincloud, echo=TRUE, message=FALSE, fig.width=8, fig.asp=0.618}
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+lb <- function(x) mean(x) - ((0.5)*sd(x))
+ub <- function(x) mean(x) + ((0.5)*sd(x))
+
+sumld <- diamonds %>% 
+  group_by(cut) %>% 
+  summarise(mean = mean(price), 
+            median = median(price), 
+            lower = lb(price), 
+            upper = ub(price))
+
+ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = price, color = cut), 
+             position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_point(data = sumld, aes(x = cut, y = mean), 
+             position = position_nudge(x = 0.3), size = 2.5) +
+  geom_errorbar(data = sumld, aes(ymin = lower, ymax = upper, y = mean), 
+                position = position_nudge(x = 0.3), width = 0) +
+  scale_y_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) + 
+  scale_x_discrete(expand = c(0.1, 0)) +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_diamonds() 
+```
+
+---
+
+```{r raincloud2, eval=FALSE}
+## FROM: https://orchid00.github.io/tidy_raincloudplot
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+lb <- function(x) mean(x) - ((0.5)*sd(x))
+ub <- function(x) mean(x) + ((0.5)*sd(x))
+
+sumld <- diamonds %>% 
+  group_by(cut) %>% 
+  summarise(mean = mean(price), 
+            median = median(price), 
+            lower = lb(price), 
+            upper = ub(price))
+
+ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = price, color = cut), 
+             position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_point(data = sumld, aes(x = cut, y = mean), 
+             position = position_nudge(x = 0.3), size = 2.5) +
+  geom_errorbar(data = sumld, aes(ymin = lower, ymax = upper, y = mean), 
+                position = position_nudge(x = 0.3), width = 0) +
+  scale_y_continuous(limits = c(0, 22000), 
+                     expand = c(0.01, 0), label = comma) + 
+  scale_x_discrete(expand = c(0.1, 0)) +
+  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_diamonds() 
+```
 
 
 ---
@@ -214,7 +295,7 @@ Raincloud Plot
 ![](images/ttrocks.png)
 
 ---
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
+```{r simpsons, warning=FALSE, message=FALSE, eval=FALSE}
 plot <- 
   theme_void() + 
   theme(text = element_text(family = "Gaegu"),
@@ -229,7 +310,7 @@ plot <-
 ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.width=7}
+```{r simpsons2, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.width=7}
 ## TAKEN FROM: https://github.com/GilHenriques/TidyTuesdays/tree/master/2019-08-27%20Simpsons%20guest%20stars
 
 library(sysfonts)
@@ -285,7 +366,16 @@ ggimage::ggbackground(plot, "chalkboard_simpsons.gif", by = "height")
 
 ---
 
-```{r, echo=FALSE}
+imageMagick
+
+```{r}
+
+```
+
+
+---
+
+```{r got, echo=FALSE}
 ## FROM: http://rpubs.com/maraalexeev/529038
 library(gameofthrones)
 font_add_google(name = "Cinzel", family = "Cinzel")
@@ -296,7 +386,7 @@ GOT_pets <- pets %>%
   filter(animals_name %in% GOT_names)
 ```
 
-```{r, fig.width=7, fig.height=5}
+```{r got2, fig.width=7, fig.height=5}
 ggplot(GOT_pets, aes(fct_infreq(animals_name), fill = species)) + 
   geom_bar() + 
   scale_fill_got_d(option = "Targaryen", direction = - 1) +
@@ -615,6 +705,9 @@ p <-
 
 king of tidytuesday
 
+---
+
+https://twitter.com/lpmkremer/status/1168912680767447040?s=21
 
 ---
 
@@ -638,8 +731,11 @@ The Economist:
 New way to make alluvial charts: 
   https://ggforce.data-imaginist.com/reference/geom_parallel_sets.html
   
-You Can Design a Good Chart with R: 
+You Can Design a Good Chart with R (on the Tufte tweetstorm): 
   https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
+  
+Use Slack to help make your own color pallettes:
+  https://twitter.com/ludmila_janda/status/1166078113719230464
   
 ---
 
