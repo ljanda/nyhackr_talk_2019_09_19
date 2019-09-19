@@ -862,27 +862,6 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 --- 
 
-# Thank you
-
-- Samuel Crane, @samuelcrane and Amplify
-
-- Sebastian Teran Hidlago, @steranhidalgo
-
-- RLadies-NYC, @RLadiesNYC
-
-- Jared Lander, @jaredlander
-
-- all the #TidyTuesday contributors
-
-Gil Henriques, @_Gil_Henriques
-Mara Alexeev, @MaraAlexeev
-David Neuzerling, @mdneuzerling
-Tanya Shapiro, @tanya_shapiro
-Cédric Scherer, @CedScherer
-
-- the Rstats community 
-
----
 
 ### More resources
 
@@ -905,6 +884,31 @@ ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gal
   
   
 ---
-  
+
+# Thank you
+
+- Samuel Crane, @samuelcrane and Amplify
+
+- Sebastian Teran Hidlago, @steranhidalgo
+
+- RLadies-NYC, @RLadiesNYC
+
+- Jared Lander, @jaredlander
+
+- all the #TidyTuesday contributors: 
+
+Gil Henriques, @_Gil_Henriques
+
+Mara Alexeev, @MaraAlexeev
+
+David Neuzerling, @mdneuzerling
+
+Tanya Shapiro, @tanya_shapiro
+
+Cédric Scherer, @CedScherer
+
+- the Rstats community 
+
+---
 
 
