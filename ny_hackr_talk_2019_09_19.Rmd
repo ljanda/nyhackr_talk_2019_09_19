@@ -20,6 +20,7 @@ options(htmltools.dir.version = FALSE)
 library(tidyverse)
 library(scales)
 library(ggridges)
+library(gghighlight)
 library(extrafont)
 library(ggforce)
 library(cowplot)
@@ -139,6 +140,18 @@ ggplot(diamonds, aes(cut, price)) +
 
 ---
 
+```{r dotploth, echo=TRUE, message=FALSE, fig.width=6.5, fig.asp=0.618}
+ggplot(diamonds, aes(cut, price, color = cut)) + 
+  geom_dotplot(binaxis = "y", stackdir = "center", stackratio = 0.5, 
+               dotsize = 0.5, binwidth = 30, alpha = 0.5) +
+  gghighlight::gghighlight(cut == "Ideal") + 
+  scale_y_continuous(label = comma) +
+  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
+  theme_diamonds() 
+```
+
+---
+
 ```{r ridgeplot, echo=TRUE, message=FALSE, fig.width=4.5, fig.asp=0.618}
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(alpha = 0.5,
@@ -236,7 +249,7 @@ ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
   scale_y_continuous(limits = c(0, 22000), 
                      expand = c(0.01, 0), label = comma) + 
   scale_x_discrete(expand = c(0.1, 0)) +
-  labs(x = "Price", y = "Cut", title = "Diamond Prices By Cut") + 
+  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") + 
   guides(fill = FALSE) +
   guides(color = FALSE) +
   coord_flip() +
@@ -283,8 +296,8 @@ ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
   theme_diamonds() 
 ```
 
-
 ---
+
 ### TidyTuesday
 
 [Github](https://github.com/rfordatascience/tidytuesday), [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
@@ -814,7 +827,7 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 ---
 
-### In Summary 
+# In Summary 
 
 - Change your background
 
@@ -828,29 +841,48 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 --
 
-- Use fun ggplot adjacent packages
+- Use ggplot and ggplot adjacent packages
 
 --
 
 - Add images
 
+--
+
+- Follow #TidyTuesday
+
+--
+
+- HAVE FUN! 
+
+--
+
+![](images/pie.jpeg)
+
 
 --- 
 
-
-### Thank you
+# Thank you
 
 - Samuel Crane, @samuelcrane and Amplify
+
 - Sebastian Teran Hidlago, @steranhidalgo
+
 - RLadies-NYC, @RLadiesNYC
+
 - Jared Lander, @jaredlander
+
 - all the #TidyTuesday contributors
+
+Gil Henriques, @_Gil_Henriques
+Mara Alexeev, @MaraAlexeev
+David Neuzerling, @mdneuzerling
+Tanya Shapiro, @tanya_shapiro
+Cédric Scherer, @CedScherer
+
 - the Rstats community 
 
-
-
 ---
-
 
 ### More resources
 
@@ -871,7 +903,8 @@ You Can Design a Good Chart with R (on the Tufte tweetstorm):
   
 ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gallery.html
   
-
+  
+---
   
 
 

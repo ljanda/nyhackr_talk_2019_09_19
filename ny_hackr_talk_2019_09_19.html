@@ -135,6 +135,21 @@ ggplot(diamonds, aes(cut, price)) +
 
 
 ```r
+ggplot(diamonds, aes(cut, price, color = cut)) + 
+  geom_dotplot(binaxis = "y", stackdir = "center", stackratio = 0.5, 
+               dotsize = 0.5, binwidth = 30, alpha = 0.5) +
+  gghighlight::gghighlight(cut == "Ideal") + 
+  scale_y_continuous(label = comma) +
+  labs(x = "Cut", y = "Price", title = "Diamond Prices By Cut") +
+  theme_diamonds() 
+```
+
+![](ny_hackr_talk_2019_09_19_files/figure-html/dotploth-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
 ggplot(diamonds, aes(price, cut)) + 
   ggridges::geom_density_ridges(alpha = 0.5,
                       scale = 1.4,                # ridge height/overlap 
@@ -259,8 +274,8 @@ ggplot(data = diamonds, aes(y = price, x = cut, fill = cut)) +
   theme_diamonds() 
 ```
 
-
 ---
+
 ### TidyTuesday
 
 [Github](https://github.com/rfordatascience/tidytuesday), [Shiny app: tidytuesday.rocks](https://nsgrantham.shinyapps.io/tidytuesdayrocks/)
@@ -578,7 +593,7 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 ---
 
-### In Summary 
+# In Summary 
 
 - Change your background
 
@@ -592,29 +607,48 @@ ggplot(data = dat, mapping = aes(x = x, y = y)) +
 
 --
 
-- Use fun ggplot adjacent packages
+- Use ggplot and ggplot adjacent packages
 
 --
 
 - Add images
 
+--
+
+- Follow #TidyTuesday
+
+--
+
+- HAVE FUN! 
+
+--
+
+![](images/pie.jpeg)
+
 
 --- 
 
-
-### Thank you
+# Thank you
 
 - Samuel Crane, @samuelcrane and Amplify
+
 - Sebastian Teran Hidlago, @steranhidalgo
+
 - RLadies-NYC, @RLadiesNYC
+
 - Jared Lander, @jaredlander
+
 - all the #TidyTuesday contributors
+
+Gil Henriques, @_Gil_Henriques
+Mara Alexeev, @MaraAlexeev
+David Neuzerling, @mdneuzerling
+Tanya Shapiro, @tanya_shapiro
+Cédric Scherer, @CedScherer
+
 - the Rstats community 
 
-
-
 ---
-
 
 ### More resources
 
@@ -634,6 +668,9 @@ You Can Design a Good Chart with R (on the Tufte tweetstorm):
   https://medium.com/nightingale/you-can-design-a-good-chart-with-r-5d00ed7dd18e
   
 ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gallery.html
+  
+  
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="libs/remark-latest.min.js"></script>
