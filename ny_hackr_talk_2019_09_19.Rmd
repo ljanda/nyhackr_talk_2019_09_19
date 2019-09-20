@@ -808,6 +808,9 @@ p <-
 
 ![](images/2019_18_BirdCollisions.png)
 
+![](images/2019_17_animes.png)
+
+
 ---
 
 ```{r ggpointdensity, echo=TRUE, fig.width=4, fig.asp=0.618}
