@@ -892,7 +892,7 @@ ggridges gallery: https://cran.r-project.org/web/packages/ggridges/vignettes/gal
 
 - Samuel Crane, @samuelcrane and Amplify
 
-- Sebastian Teran Hidlago, @steranhidalgo
+- Sebastian Teran Hidalgo, @steranhidalgo
 
 - RLadies-NYC, @RLadiesNYC
 
